@@ -3,14 +3,11 @@ package uk.nhs.nhsdigital.fhirvalidatorSTU3.controller
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.context.support.IValidationSupport
 import ca.uhn.fhir.validation.FhirValidator
-import uk.nhs.nhsdigital.fhirvalidatorSTU3.service.CapabilityStatementApplier
-import uk.nhs.nhsdigital.fhirvalidatorSTU3.service.MessageDefinitionApplier
 import org.hl7.fhir.r4.model.Bundle
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
-import uk.nhs.nhsdigital.fhirvalidatorSTU3.service.VerifyOAS
 
 @ExtendWith(MockitoExtension::class)
 internal class ValidateControllerTest {
@@ -20,11 +17,6 @@ internal class ValidateControllerTest {
     @Mock
     lateinit var mockValidator: FhirValidator
 
-    @Mock
-    lateinit var mockMessageDefinitionApplier: MessageDefinitionApplier
-
-    @Mock
-    lateinit var mockCapabilityStatementApplier: CapabilityStatementApplier
 
     @Mock
     lateinit var mockSupportChain: IValidationSupport
@@ -32,8 +24,6 @@ internal class ValidateControllerTest {
     @Mock
     lateinit var mockSearchParameters : Bundle
 
-    @Mock
-    lateinit var verifyOAS: VerifyOAS
 
  /*
     @Test

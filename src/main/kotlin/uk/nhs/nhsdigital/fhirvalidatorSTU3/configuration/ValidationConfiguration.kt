@@ -160,15 +160,13 @@ open class ValidationConfiguration(
                                 )
                 && it.hasType()) {
                 logger.warn(structureDefinition.url + " has circular references ("+ it.id + ")")
-                /* for stu3 conversion
+
                 it.type.forEach{
                     if (it.hasTargetProfile())
-                        it.targetProfile.forEach {
-                            it.value = getBase(it.value, supportChain);
-                        }
+                        it.targetProfile = getBase(it.targetProfile,supportChain)
+
                 }
 
-                 */
             }
         }
         return structureDefinition
