@@ -7,8 +7,6 @@ import ca.uhn.fhir.rest.api.MethodOutcome
 import ca.uhn.fhir.validation.FhirValidator
 import ca.uhn.fhir.validation.ValidationOptions
 import mu.KLogging
-import org.hl7.fhir.convertors.advisors.impl.BaseAdvisor_30_40
-import org.hl7.fhir.convertors.conv30_40.VersionConvertor_30_40
 import org.hl7.fhir.instance.model.api.IBaseResource
 import org.hl7.fhir.dstu3.model.Bundle
 import org.hl7.fhir.dstu3.model.OperationOutcome
@@ -16,11 +14,10 @@ import org.hl7.fhir.dstu3.model.Resource
 import org.hl7.fhir.dstu3.model.ResourceType
 import org.springframework.stereotype.Component
 import uk.nhs.nhsdigital.fhirvalidatorSTU3.util.createSTU3OperationOutcome
-import uk.nhs.nhsdigital.fhirvalidatorSTU3.util.createSTU3OperationOutcomeR4
 import javax.servlet.http.HttpServletRequest
 
 @Component
-class ValidateProviderSTU3 (
+class ValidateProvider (
                         private val validator: FhirValidator
 ) {
     companion object : KLogging()
@@ -33,10 +30,10 @@ class ValidateProviderSTU3 (
         @Validate.Profile parameterResourceProfile: String?
     ): MethodOutcome {
         val profile = parameterResourceProfile ?: servletRequest.getParameter("profile")
-        val convertor = VersionConvertor_30_40(BaseAdvisor_30_40())
+
         val resourceR3 = resource as Resource
-        val resourceR4 = convertor.convertResource(resourceR3)
-        val operationOutcome = parseAndValidateResource(resourceR4, profile)
+
+        val operationOutcome = parseAndValidateResource(resourceR3, profile)
         val methodOutcome = MethodOutcome()
         methodOutcome.operationOutcome = operationOutcome
         return methodOutcome
@@ -48,19 +45,19 @@ class ValidateProviderSTU3 (
             val resources = getResourcesToValidate(inputResource)
             val operationOutcomeList = resources.map { validateResource(it, profile) }
             val operationOutcomeIssues = operationOutcomeList.filterNotNull().flatMap { it.issue }
-            return createSTU3OperationOutcomeR4(operationOutcomeIssues)
+            return createSTU3OperationOutcome(operationOutcomeIssues)
         } catch (e: DataFormatException) {
          //   VerifyController.logger.error("Caught parser error", e)
             createSTU3OperationOutcome(e.message ?: "Invalid JSON", null)
         }
     }
 
-    fun validateResource(resource: IBaseResource, profile: String?): org.hl7.fhir.r4.model.OperationOutcome? {
+    fun validateResource(resource: IBaseResource, profile: String?): OperationOutcome? {
         if (profile != null) return validator.validateWithResult(resource, ValidationOptions().addProfile(profile))
-            .toOperationOutcome() as? org.hl7.fhir.r4.model.OperationOutcome
+            .toOperationOutcome() as? OperationOutcome
 
         val operationOutcome = validator.validateWithResult(resource).toOperationOutcome()
-        return operationOutcome as org.hl7.fhir.r4.model.OperationOutcome
+        return operationOutcome as OperationOutcome
     }
 
     fun getResourcesToValidate(inputResource: IBaseResource?): List<IBaseResource> {

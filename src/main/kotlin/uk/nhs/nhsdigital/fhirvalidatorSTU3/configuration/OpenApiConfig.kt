@@ -24,16 +24,6 @@ import uk.nhs.nhsdigital.fhirvalidatorSTU3.util.FHIRExamples
 @Configuration
 open class OpenApiConfig(val ctx : FhirContext) {
     var VALIDATION = "FHIR Validation"
-    val SVCM = "FHIR Terminology"
-    val SVCM_95 = "Query Value Set"
-    val SVCM_96 = "Query Code System"
-    val SVCM_97 = "Expand Value Set"
-    val SVCM_98 = "Lookup Code"
-    val SVCM_99 = "Validate Code"
-    val SVCM_100 = "Query Concept Map"
-    val SVCM_101 = "Translate Code"
-    var MEDICATION_DEFINITION = "FHIR Medication Definition (R5 Demonstration)"
-    var HIDDEN = "Others API - Including experimental"
 
     @Bean
     open fun customOpenAPI(
@@ -48,7 +38,10 @@ open class OpenApiConfig(val ctx : FhirContext) {
                     .version(fhirServerProperties.server.version)
                     .description(fhirServerProperties.server.name
                             + "\n "
-                        )
+                            + "\n [Care Connect Implementation Guide (2.1.0)](https://simplifier.net/guide/hl7fhircareconnectprofilesstu3?version=current)"
+                            + "\n\n [NHS Digital STU3 Implementation Guide (0.9.0)](https://fhir.nhs.uk/)"
+
+                    )
                     .termsOfService("http://swagger.io/terms/")
                     .license(License().name("Apache 2.0").url("http://springdoc.org"))
             )
@@ -63,10 +56,10 @@ open class OpenApiConfig(val ctx : FhirContext) {
         val examplesTOC = LinkedHashMap<String,Example?>()
 
         examplesTOC.put("ITK3 + Clinic Letter",
-            Example().value(FHIRExamples().loadExample("clinic-letter.xml",ctx))
+            Example().value(FHIRExamples().loadExampleXML("clinic-letter.xml",ctx))
         )
         examplesTOC.put("Clinic Letter",
-            Example().value(FHIRExamples().loadExample("toc-clinic-letter.xml",ctx))
+            Example().value(FHIRExamples().loadExampleXML("toc-clinic-letter.xml",ctx))
         )
         val validateItem = PathItem()
             .post(
@@ -98,7 +91,9 @@ open class OpenApiConfig(val ctx : FhirContext) {
                         .schema(StringSchema().format("token"))
                        )
                     .requestBody(RequestBody().content(Content()
-                        .addMediaType("application/fhir+xml",MediaType().schema(StringSchema()))
+                        .addMediaType("application/fhir+xml",MediaType()
+                           // .examples(examplesTOC)
+                            .schema(StringSchema()))
                         .addMediaType("application/fhir+json",MediaType().schema(StringSchema()._default("{\"resourceType\":\"Patient\"}")))
 
                     ))
@@ -109,7 +104,7 @@ open class OpenApiConfig(val ctx : FhirContext) {
         val convertR4Item = PathItem()
             .post(
                 Operation()
-                    .addTagsItem(HIDDEN)
+                    .addTagsItem(VALIDATION)
                     .summary("Convert to FHIR R4 (Structure only)")
                     .addParametersItem(Parameter()
                         .name("Accept")
@@ -131,15 +126,8 @@ open class OpenApiConfig(val ctx : FhirContext) {
 
     }
 
-    private fun getTerminologyTag(itiRef: String, itiDesc: String): io.swagger.v3.oas.models.tags.Tag? {
-        return io.swagger.v3.oas.models.tags.Tag()
-            .name(getTerminologyTagName(itiDesc))
-            .description("[HL7 FHIR Terminology](https://www.hl7.org/fhir/R4/terminologies-systems.html) \n" +
-                    "[IHE Profile: Sharing Valuesets, Codes, and Maps (SVCM) ITI-"+itiRef+"](https://profiles.ihe.net/ITI/TF/Volume1/ch-51.html)")
-    }
-    private fun getTerminologyTagName(itiDesc: String): String {
-        return SVCM+" - "+itiDesc
-    }
+
+
 
 
     fun getApiResponses() : ApiResponses {
@@ -153,16 +141,7 @@ open class OpenApiConfig(val ctx : FhirContext) {
         return apiResponses
     }
 
-    fun getApiResponsesMarkdown() : ApiResponses {
 
-        val response200 = ApiResponse()
-        response200.description = "OK"
-        val exampleList = mutableListOf<Example>()
-        exampleList.add(Example().value("{}"))
-        response200.content = Content().addMediaType("text/markdown", MediaType().schema(StringSchema()._default("{}")))
-        val apiResponses = ApiResponses().addApiResponse("200",response200)
-        return apiResponses
-    }
     fun getApiResponsesXMLJSON() : ApiResponses {
 
         val response200 = ApiResponse()
@@ -176,33 +155,4 @@ open class OpenApiConfig(val ctx : FhirContext) {
         return apiResponses
     }
 
-    fun getApiResponsesRAWJSON() : ApiResponses {
-
-        val response200 = ApiResponse()
-        response200.description = "OK"
-        val exampleList = mutableListOf<Example>()
-        exampleList.add(Example().value("{}"))
-        response200.content = Content()
-            .addMediaType("application/json", MediaType().schema(StringSchema()._default("{}")))
-        val apiResponses = ApiResponses().addApiResponse("200",response200)
-        return apiResponses
-    }
-    fun getPathItem(tag :String, name : String,fullName : String, param : String, example : String, description : String ) : PathItem {
-        val pathItem = PathItem()
-            .get(
-                Operation()
-                    .addTagsItem(tag)
-                    .summary("search-type")
-                    .description(description)
-                    .responses(getApiResponses())
-                    .addParametersItem(Parameter()
-                        .name(param)
-                        .`in`("query")
-                        .required(false)
-                        .style(Parameter.StyleEnum.SIMPLE)
-                        .description("The uri that identifies the "+fullName)
-                        .schema(StringSchema().format("token"))
-                        .example(example)))
-        return pathItem
-    }
 }

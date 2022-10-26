@@ -7,14 +7,14 @@ import ca.uhn.fhir.rest.server.RestfulServer
 import org.springframework.beans.factory.annotation.Qualifier
 import uk.nhs.nhsdigital.fhirvalidatorSTU3.provider.ConversionProviderSTU3
 import uk.nhs.nhsdigital.fhirvalidatorSTU3.provider.StructureDefinitionProvider
-import uk.nhs.nhsdigital.fhirvalidatorSTU3.provider.ValidateProviderSTU3
+import uk.nhs.nhsdigital.fhirvalidatorSTU3.provider.ValidateProvider
 import java.util.*
 import javax.servlet.annotation.WebServlet
 
 @WebServlet("/FHIR/STU3/*", loadOnStartup = 1)
 class FHIRSTU3RestfulServer(
     @Qualifier("STU3") fhirContext: FhirContext,
-    private val validateSTU3Provider: ValidateProviderSTU3,
+    private val validateSTU3Provider: ValidateProvider,
     val conversionProviderSTU3: ConversionProviderSTU3,
     val structureDefinitionProvider: StructureDefinitionProvider,
     @Qualifier("SupportChain") private val supportChain: IValidationSupport

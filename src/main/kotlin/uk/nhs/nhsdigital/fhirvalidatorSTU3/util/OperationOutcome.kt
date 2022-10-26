@@ -1,6 +1,6 @@
 package uk.nhs.nhsdigital.fhirvalidatorSTU3.util
 
-import org.hl7.fhir.r4.model.OperationOutcome
+import org.hl7.fhir.dstu3.model.OperationOutcome
 import java.util.*
 
 fun createOperationOutcome(diagnostics: String, expression: String?): OperationOutcome {
@@ -8,10 +8,10 @@ fun createOperationOutcome(diagnostics: String, expression: String?): OperationO
     val issues = Collections.singletonList(issue)
     return createOperationOutcome(issues)
 }
-fun createSTU3OperationOutcome(diagnostics: String, expression: String?): org.hl7.fhir.dstu3.model.OperationOutcome {
+fun createSTU3OperationOutcome(diagnostics: String, expression: String?): OperationOutcome {
     val issue = createSTU3OperationOutcomeIssue(diagnostics, expression)
     val issues = Collections.singletonList(issue)
-    return createSTU3OperationOutcomeR3(issues)
+    return createSTU3OperationOutcome(issues)
 }
 
 fun createOperationOutcome(issues: List<OperationOutcome.OperationOutcomeIssueComponent>): OperationOutcome {
@@ -20,40 +20,14 @@ fun createOperationOutcome(issues: List<OperationOutcome.OperationOutcomeIssueCo
     return operationOutcome
 }
 
-fun createSTU3OperationOutcomeR3(issues: List<org.hl7.fhir.dstu3.model.OperationOutcome.OperationOutcomeIssueComponent>): org.hl7.fhir.dstu3.model.OperationOutcome {
-    val operationOutcome = org.hl7.fhir.dstu3.model.OperationOutcome()
+fun createSTU3OperationOutcome(issues: List<OperationOutcome.OperationOutcomeIssueComponent>): org.hl7.fhir.dstu3.model.OperationOutcome {
+    val operationOutcome = OperationOutcome()
     issues.forEach { operationOutcome.addIssue(
        it
     ) }
     return operationOutcome
 }
 
-fun createSTU3OperationOutcomeR4(issues: List<OperationOutcome.OperationOutcomeIssueComponent>): org.hl7.fhir.dstu3.model.OperationOutcome {
-    val operationOutcome = org.hl7.fhir.dstu3.model.OperationOutcome()
-    issues.forEach {
-        if (!("STU3" in it.diagnostics)) {
-            operationOutcome.addIssue(
-                getIssue(it)
-            )
-        }
-    }
-    return operationOutcome
-}
-
-fun getIssue(r4issue : OperationOutcome.OperationOutcomeIssueComponent) :org.hl7.fhir.dstu3.model.OperationOutcome.OperationOutcomeIssueComponent {
-    var r3issue = org.hl7.fhir.dstu3.model.OperationOutcome.OperationOutcomeIssueComponent()
-        .setDiagnostics(r4issue.diagnostics)
-    when (r4issue.severity) {
-        OperationOutcome.IssueSeverity.ERROR -> r3issue.severity = org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity.ERROR
-        OperationOutcome.IssueSeverity.FATAL -> r3issue.severity =  org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity.FATAL
-        OperationOutcome.IssueSeverity.INFORMATION -> r3issue.severity =  org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity.INFORMATION
-        OperationOutcome.IssueSeverity.WARNING -> r3issue.severity =  org.hl7.fhir.dstu3.model.OperationOutcome.IssueSeverity.WARNING
-        else -> {}
-    }
-    r3issue.code = org.hl7.fhir.dstu3.model.OperationOutcome.IssueType.fromCode(r4issue.code.toCode())
-
-    return r3issue
-}
 
 
 

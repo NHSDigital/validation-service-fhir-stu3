@@ -1,3 +1,10 @@
 [
-
+  {
+    "packageName": "CareConnect.STU3.02.00.00",
+    "version": "2.1.0"
+  },
+  {
+    "packageName": "uk.nhsdigital.stu3",
+    "version": "0.0.0-prerelease"
+  }
 ]
