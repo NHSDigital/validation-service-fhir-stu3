@@ -1,5 +1,5 @@
 server:
-  port: 9001
+  port: 9006
   tomcat:
     threads:
       max: 10
@@ -14,7 +14,7 @@ management:
 
 fhir:
   server:
-    name: NHS Digital FHIR Validator
+    name: NHS Digital FHIR STU3 Validator
     baseUrl: https://test.validation.fhir.nhs.uk
     version: 2.6.11
 
